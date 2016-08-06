@@ -1,0 +1,16 @@
+Para executar o webservice é necessário colocar o arquivo:
+gsdll64.dll na pasta C:\System32.
+
+Obs: O Sistema operacional precisa ser 64bits;
+
+
+
+Caso esteja criando um novo banco de dados é necessário setar estas informações:
+
+SET GLOBAL max_allowed_packet=1073741824; (Motivo: As Strings dos PDF's são muito grandes);
+Outro caso é que o campo de REVISTA.ARQUIVO e PAGINA.IMAGEM devem ser LONGBLOB:
+
+ALTER TABLE pagina 
+CHANGE COLUMN imagem LONGBLOB;
+ALTER TABLE revista 
+CHANGE COLUMN arquivo LONGBLOB;
