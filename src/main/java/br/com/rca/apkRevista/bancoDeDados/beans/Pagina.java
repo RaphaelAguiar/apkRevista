@@ -1,9 +1,11 @@
 package br.com.rca.apkRevista.bancoDeDados.beans;
 
 import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.Base64;
 
+import javax.imageio.ImageIO;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -11,7 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.IJSON;
-import br.com.rca.apkRevista.ferramentas.Converter;
+import br.com.rca.apkRevista.scanner.Scanner;
 
 @Entity
 public class Pagina implements Serializable, IJSON{
@@ -31,28 +33,46 @@ public class Pagina implements Serializable, IJSON{
 	private int altura;
 	@Id
 	private int resolucao;
-	
-	private String imagem;
 
 	public Pagina(){
 		
 	}
 	
-	public Pagina(String clientUser, String nomeDaRevista, int nPagina, int largura, int altura, int resolucao,Image imagem) {
+	public Pagina(String clientUser, String nomeDaRevista, int nPagina, int largura, int altura, int resolucao) {
 		this.user          = clientUser;
-		this.nomeDaRevista = nomeDaRevista;
+		this.nomeDaRevista = nomeDaRevista.replace(".pdf", "");
 		this.nPagina       = nPagina;
 		this.largura       = largura;
 		this.altura        = altura;
 		this.resolucao     = resolucao;
-		
-		byte[] imagem64    = Converter.imageToByte(imagem); 
-		this.imagem        = Base64.getUrlEncoder().encodeToString(imagem64);
+				             
 	}
 	
-	public Image getImagem(){
-		byte[] imagem01 = Base64.getUrlDecoder().decode(this.imagem); 
-		return Converter.byteToImage(imagem01);
+	public Image getImagem(){ 
+		try {
+			return ImageIO.read(new File(getImagemPath()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	
+	
+	public String getImagemPath() {
+		return	user	 	              + File.separator +
+				nomeDaRevista             + File.separator +
+				n0aEsquerda(resolucao,4)  + File.separator +
+				n0aEsquerda(nPagina  ,4)  + "-" + largura + "-" + altura +  "." + Scanner.FORMATO_PADRAO;
+	}
+
+	private String n0aEsquerda(int valor, int zeros) {
+		String retorno = valor + "";
+		int nDigitos   = retorno.length();
+		for (int i = 0; i < zeros - nDigitos; i++) {
+			retorno = "0" + retorno;
+		}
+		return retorno;
 	}
 
 	public JSONObject toJSON() {

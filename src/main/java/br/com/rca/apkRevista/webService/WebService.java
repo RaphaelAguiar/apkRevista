@@ -1,7 +1,6 @@
 package br.com.rca.apkRevista.webService;
 
 
-import java.awt.Image;
 import java.time.LocalTime;
 import java.util.ArrayList;
 
@@ -72,21 +71,9 @@ public class WebService {
 			log.add("A revista " + nomeDaRevista + " só tem " + e.getNUltimaPagina() + " página(s)!");
 		}catch(PaginaNaoExisteNestaResolucao e){
 			if(forcarResolucao){
-				try {
-				Image imagem;
-					imagem = DAOPagina.getInstance().getMaiorResolucao(clientUser,nomeDaRevista,nPagina).getImagem();
-					Pagina pagina = new Pagina(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao,imagem);
-					DAOPagina.getInstance().persist(pagina);
-					return new JSONObject(pagina.toJSON());
-				} catch (PaginaNaoExiste e1) {
-					return null;
-				} catch (RevistaNaoExiste e1) {
-					e1.printStackTrace();
-					return null;
-				} catch (ClienteNaoExiste e1) {
-					e1.printStackTrace();
-					return null;
-				}
+				Pagina pagina = new Pagina(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao);
+				DAOPagina.getInstance().persist(pagina);
+				return new JSONObject(pagina.toJSON());
 			}
 		}
 		return null;

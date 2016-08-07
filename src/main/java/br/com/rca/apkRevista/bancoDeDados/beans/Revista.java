@@ -28,7 +28,6 @@ public class Revista implements Serializable, IJSON{
 	@Id
 	private String nome;
 	private int nPaginas;
-	private String arquivo;
 	
 	public Revista(){
 		
@@ -37,14 +36,11 @@ public class Revista implements Serializable, IJSON{
 	public Revista(String user,String name, File arquivo) {
 		try {
 			this.user = user;
-			this.nome = name;
+			this.nome = name.replace(".pdf", "");
 			
 			PDFDocument documento = new PDFDocument();
 			documento.load(arquivo);
 			nPaginas = documento.getPageCount();
-			
-			byte[] arquivo01 = Converter.fileToByte(arquivo);
-			this.arquivo     = Base64.getUrlEncoder().encodeToString(arquivo01);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -64,11 +60,21 @@ public class Revista implements Serializable, IJSON{
 			retorno.append("user",user);
 			retorno.append("nome",nome);
 			retorno.append("nPaginas",nPaginas);
-			retorno.append("arquivo",arquivo);
+			retorno.append("arquivo",getArquivoURL());
 		return retorno;
 		} catch (JSONException e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public String getFilePath(){
+		return user + File.separator + nome + ".pdf";
+	}
+	
+	public String getArquivoURL() {
+		File   arquivo    = new File(getFilePath());
+		byte[] arquivo01  =  Converter.fileToByte(arquivo);
+		return Base64.getUrlEncoder().encodeToString(arquivo01);
 	}
 }

@@ -23,14 +23,21 @@ import org.ghost4j.renderer.SimpleRenderer;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public abstract class Converter {
-	public static JSONObject stringToJSONObject(String json){
+import br.com.rca.apkRevista.bancoDeDados.beans.Pagina;
+
+public final class Converter {
+
+	private Converter() {
+		super();
+	}
+
+	public static JSONObject stringToJSONObject(String json) {
 		JSONObject retorno = new JSONObject();
-		json = json.substring(2,json.length()-2);
+		json = json.substring(2, json.length() - 2);
 		String[] colunas = json.split("\",\"");
 		for (String coluna : colunas) {
-			String key   = coluna.substring(               0, coluna.indexOf("\":"));
-			String value = coluna.substring(key.length() + 3,coluna.length());
+			String key = coluna.substring(0, coluna.indexOf("\":"));
+			String value = coluna.substring(key.length() + 3, coluna.length());
 			try {
 				retorno.put(key, value);
 			} catch (JSONException e) {
@@ -39,21 +46,21 @@ public abstract class Converter {
 		}
 		return retorno;
 	}
-	public static List<Image> filePdfToImagens(File file, int resolution, String formato, boolean saveToFile) {
-		PDFDocument pdf         = new PDFDocument();
-		SimpleRenderer renderer = new SimpleRenderer();
+
+	public static List<Image> filePdfToImagens(File file,String pastaDeGravacao,String usuario, int resolution, String formato) {
+		PDFDocument pdf           = new PDFDocument();
+		SimpleRenderer renderer   = new SimpleRenderer();
 		try {
 			pdf.load(file);
 			renderer.setResolution(resolution);
-			List<Image> retorno = renderer.render(pdf);
-			if(saveToFile){
-				for (int i = 0; i < retorno.size(); i++) {
-					String caminhoDaGravacao = file.getPath().replaceAll(".pdf", "") + i + "." + formato; 
-					File outputfile          = new File(caminhoDaGravacao);
-					ImageIO.write((RenderedImage) retorno.get(i), formato, outputfile);			
-				}
+			List<Image> imagens = renderer.render(pdf);
+			for (int i = 0; i < imagens.size(); i++) {
+				String caminhoDaGravacao = pastaDeGravacao + new Pagina(usuario,file.getName(),i+1,0,0,resolution).getImagemPath();
+				File outputfile    = new File(caminhoDaGravacao);
+				outputfile.mkdirs();
+				ImageIO.write((RenderedImage) imagens.get(i), formato, outputfile);
 			}
-			return retorno;
+			return imagens;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
@@ -68,28 +75,30 @@ public abstract class Converter {
 			return null;
 		}
 	}
+
 	private static BufferedImage imageToBufferedImage(Image img) {
-	    if (img instanceof BufferedImage)
-	        return (BufferedImage) img;
-	    
-	    // Create a buffered image with transparency
-	    BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+		if (img instanceof BufferedImage)
+			return (BufferedImage) img;
 
-	    // Draw the image on to the buffered image
-	    Graphics2D bGr = bimage.createGraphics();
-	    bGr.drawImage(img, 0, 0, null);
-	    bGr.dispose();
+		// Create a buffered image with transparency
+		BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
 
-	    // Return the buffered image
-	    return bimage;
-	}	
+		// Draw the image on to the buffered image
+		Graphics2D bGr = bimage.createGraphics();
+		bGr.drawImage(img, 0, 0, null);
+		bGr.dispose();
 
-	public static byte[] imageToByte (Image imagem) {
-		 BufferedImage bufferedImage = imageToBufferedImage(imagem);
-		 WritableRaster raster = bufferedImage .getRaster();
-		 DataBufferByte data   = (DataBufferByte) raster.getDataBuffer();
-		 return (data.getData());
+		// Return the buffered image
+		return bimage;
 	}
+
+	public static byte[] imageToByte(Image imagem) {
+		BufferedImage bufferedImage = imageToBufferedImage(imagem);
+		WritableRaster raster = bufferedImage.getRaster();
+		DataBufferByte data = (DataBufferByte) raster.getDataBuffer();
+		return (data.getData());
+	}
+
 	public static byte[] fileToByte(File arquivo) {
 		try {
 			return FileUtils.readFileToByteArray(arquivo);
@@ -98,22 +107,15 @@ public abstract class Converter {
 			return null;
 		}
 	}
-	/*public static Image byteToImage(File imagem01) {
-		try {
-			return ImageIO.read(imagem01);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}*/
+
 	public static Image byteToImage(byte[] imagem01) {
-        BufferedImage bufferedImage=null;
-        try {
-            InputStream inputStream = new ByteArrayInputStream(imagem01);
-            bufferedImage = ImageIO.read(inputStream);
-        } catch (IOException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return bufferedImage;
+		BufferedImage bufferedImage = null;
+		try {
+			InputStream inputStream = new ByteArrayInputStream(imagem01);
+			bufferedImage = ImageIO.read(inputStream);
+		} catch (IOException ex) {
+			System.out.println(ex.getMessage());
+		}
+		return bufferedImage;
 	}
 }

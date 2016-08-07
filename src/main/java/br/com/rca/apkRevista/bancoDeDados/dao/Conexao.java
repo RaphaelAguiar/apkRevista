@@ -7,7 +7,7 @@ import javax.persistence.Query;
 
 import br.com.rca.apkRevista.webService.WebService;
 
-abstract class Conexao {
+public abstract class Conexao {
 	private static EntityManager em;
 	private static EntityTransaction transaction;
 

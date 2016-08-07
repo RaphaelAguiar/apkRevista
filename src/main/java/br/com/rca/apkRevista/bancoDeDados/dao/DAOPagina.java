@@ -3,7 +3,6 @@ package br.com.rca.apkRevista.bancoDeDados.dao;
 import java.util.List;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.Pagina;
-import br.com.rca.apkRevista.bancoDeDados.beans.Revista;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.ClienteNaoExiste;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExiste;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExisteNestaResolucao;
@@ -17,16 +16,16 @@ public class DAOPagina extends DAO<Pagina>{
 		@SuppressWarnings("unchecked")
 		List<Pagina> result = (List<Pagina>) Conexao.getQuery("from Pagina where user          = :user          " + 
 		                                                                    "and nomeDaRevista = :nomeDaRevista " +
-				                                                            "and pagina        = :pagina        " +
+				                                                            "and nPagina       = :nPagina       " +
 				                                                            "and largura       = :largura       " +
 				                                                            "and altura        = :altura        " +
 				                                                            "and resolucao     = :resolucao     ").
 												               setParameter("user"         , keys[0]).
 												               setParameter("nomeDaRevista", keys[1]).
-												               setParameter("pagina"       , keys[2]).
-												               setParameter("largura"      , keys[3]).
-												               setParameter("altura"       , keys[4]).
-												               setParameter("resolucao"    , keys[5]).
+												               setParameter("nPagina"      , Integer.parseInt(keys[2])).
+												               setParameter("largura"      , Integer.parseInt(keys[3])).
+												               setParameter("altura"       , Integer.parseInt(keys[4])).
+												               setParameter("resolucao"    , Integer.parseInt(keys[5])).
 												               getResultList();
 		if(result.isEmpty()){
 			int ultimaPagina = DAORevista.getInstance().get(keys[0], keys[1]).getNPaginas();
@@ -42,8 +41,9 @@ public class DAOPagina extends DAO<Pagina>{
 		try{
 			return getInstance().get(clientUser,nomeDaRevista,pagina + "",largura + "", altura + "", resolucao + "");
 		}catch(PaginaNaoExiste e){
-			Revista revista = DAORevista.getInstance().get(clientUser, nomeDaRevista); //Caso a revista não exista levantará excessão
-			int nPaginas = revista.getNPaginas();
+			//Revista revista = DAORevista.getInstance().get(clientUser, nomeDaRevista); //Caso a revista não exista levantará excessão
+			//int nPaginas = revista.getNPaginas();
+			int nPaginas = e.getNUltimaPagina();
 			if (pagina > 0 && pagina <= nPaginas)
 				throw new PaginaNaoExisteNestaResolucao();
 			else
@@ -61,11 +61,11 @@ public class DAOPagina extends DAO<Pagina>{
 		@SuppressWarnings("unchecked")
 		List<Pagina> result = (List<Pagina>) Conexao.getQuery("from Pagina where user          = :user          " + 
 		                                                                    "and nomeDaRevista = :nomeDaRevista " +
-				                                                            "and pagina        = :pagina        " +
+				                                                            "and nPagina       = :nPagina       " +
 				                                                            "order by resolucao desc,largura*altura desc limit 1").
 												               setParameter("user"         , clientUser).
 												               setParameter("nomeDaRevista", nomeDaRevista).
-												               setParameter("pagina"       , nPagina).
+												               setParameter("nPagina"      , nPagina).
 												               getResultList();
 		if(result.isEmpty()){
 			int ultimaPagina = DAORevista.getInstance().get(clientUser, nomeDaRevista).getNPaginas();
