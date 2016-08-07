@@ -15,7 +15,7 @@ public class DAORevista extends DAO<Revista>{
 			@SuppressWarnings("unchecked")
 			List<Revista> result = (List<Revista>) Conexao.getQuery("from Revista where user = :user and nome = :nome").
 													                setParameter("user", keys[0]).
-													                setParameter("nome", keys[1]).
+													                setParameter("nome", keys[1].replace(".pdf", "")).
 													                getResultList();
 			if(result.isEmpty())
 				throw new RevistaNaoExiste();

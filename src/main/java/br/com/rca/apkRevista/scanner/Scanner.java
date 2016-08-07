@@ -13,6 +13,7 @@ import br.com.rca.apkRevista.bancoDeDados.dao.Conexao;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAOCliente;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAORevista;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoExiste;
 import br.com.rca.apkRevista.ferramentas.Converter;
 import br.com.rca.apkRevista.webService.WebService;
 
@@ -64,21 +65,25 @@ public class Scanner extends Thread{
 				});
 				for (File arquivo : arquivos) {
 					try{
-						teveArquivoEncontrado = true;
-						
 						String user          = pasta.getName();
 						String nomeDaRevista = arquivo.getName();
-						Revista revista = new Revista(user,nomeDaRevista,arquivo);
-						List<Image> imagens = Converter.filePdfToImagens(arquivo,PASTA_RAIZ,user,RESOLUCAO_PADRAO, FORMATO_PADRAO);
-
-						Conexao.startTransaction();
-						for(int i = 0;i < imagens.size(); i++){
-							Image imagem = imagens.get(i);
-							Pagina pagina        = new Pagina(user,nomeDaRevista,i+1,imagem.getWidth(null),imagem.getHeight(null),RESOLUCAO_PADRAO);
-							DAOPagina.getInstance().persist(pagina);
+						try{
+							DAORevista.getInstance().get(user,nomeDaRevista);
+						}catch(RevistaNaoExiste e){
+							teveArquivoEncontrado = true;
+							Revista revista = new Revista(user,nomeDaRevista,arquivo);
+							List<Image> imagens = Converter.filePdfToImagens(arquivo,PASTA_RAIZ,user,RESOLUCAO_PADRAO, FORMATO_PADRAO);
+							
+							Conexao.startTransaction();
+							for(int i = 0;i < imagens.size(); i++){
+								Image imagem = imagens.get(i);
+								Pagina pagina        = new Pagina(user,nomeDaRevista,i+1,imagem.getWidth(null),imagem.getHeight(null),RESOLUCAO_PADRAO);
+								DAOPagina.getInstance().persist(pagina);
+							}
+							DAORevista.getInstance().persist(revista);
+							Conexao.commit();							
 						}
-						DAORevista.getInstance().persist(revista);
-						Conexao.commit();
+						
 					}catch(Exception e){
 						Conexao.roolback();
 						e.printStackTrace();

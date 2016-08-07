@@ -5,10 +5,10 @@ import br.com.rca.apkRevista.webService.WebService;
 public class TesteMetodoTransferirImagem {
 	public static void main(String[] args) {
 		new WebService().transferirImagem("kuatzak", 
-				                          "InteracaoComVozAndroid-43.pdf",
+				                          "INCRICAOMEIJOYCE.pdf",
 				                          1, 
-				                          1024, 
-				                          768,
+				                          2481, 
+				                          3507,
 				                          300,
 				                          true);
 	}

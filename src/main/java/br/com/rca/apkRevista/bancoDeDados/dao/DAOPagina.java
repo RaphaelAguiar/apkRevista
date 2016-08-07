@@ -21,7 +21,7 @@ public class DAOPagina extends DAO<Pagina>{
 				                                                            "and altura        = :altura        " +
 				                                                            "and resolucao     = :resolucao     ").
 												               setParameter("user"         , keys[0]).
-												               setParameter("nomeDaRevista", keys[1]).
+												               setParameter("nomeDaRevista", keys[1].replace(".pdf","")).
 												               setParameter("nPagina"      , Integer.parseInt(keys[2])).
 												               setParameter("largura"      , Integer.parseInt(keys[3])).
 												               setParameter("altura"       , Integer.parseInt(keys[4])).
