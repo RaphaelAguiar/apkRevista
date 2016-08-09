@@ -12,10 +12,10 @@ public abstract class Conexao {
 	private static EntityTransaction transaction;
 
 	static {
-		WebService.addLog("Conexao", "static", "Inicializando conexão com o banco de dados");
+		//WebService.addLog("Conexao", "static", "Inicializando conexão com o banco de dados");
 		em          = Persistence.createEntityManagerFactory("revistas").createEntityManager();
 		transaction = em.getTransaction();
-		WebService.addLog("Conexao", "static", "Conexão realizada com sucesso!");
+		//WebService.addLog("Conexao", "static", "Conexão realizada com sucesso!");
 	}
 	
 	

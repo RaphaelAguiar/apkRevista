@@ -17,6 +17,7 @@ import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoExiste;
 import br.com.rca.apkRevista.ferramentas.Converter;
 import br.com.rca.apkRevista.webService.WebService;
 
+
 public class Scanner extends Thread{
 	private static final String  PASTA_RAIZ         = "C:" + File.separator + "Temp" + File.separator;
 	private static final int     TEMPO_ENTRE_BUSCAS =  30;
@@ -54,7 +55,7 @@ public class Scanner extends Thread{
 	
 	@Override
 	public void run() {
-		WebService.addLog("Scanner", "run()", "Scanner em execução!");
+		//WebService.addLog("Scanner", "run()", "Scanner em execução!");
 		while(true){
 			boolean teveArquivoEncontrado = false; 
 			for (File pasta : pastasDeClientes) {
@@ -90,7 +91,7 @@ public class Scanner extends Thread{
 					}
 				}			
 			}
-			WebService.addLog("Scanner", "run()", "Varredura Executada!");
+			//WebService.addLog("Scanner", "run()", "Varredura Executada!");
 			if(!teveArquivoEncontrado)
 				pausar(TEMPO_ENTRE_BUSCAS * 1000);
 		}

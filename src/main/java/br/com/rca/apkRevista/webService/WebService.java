@@ -1,28 +1,14 @@
 package br.com.rca.apkRevista.webService;
 
 
-import java.time.LocalTime;
-import java.util.ArrayList;
-
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
-import org.json.JSONObject;
-
-import br.com.rca.apkRevista.bancoDeDados.beans.Pagina;
-import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
-import br.com.rca.apkRevista.bancoDeDados.excessoes.ClienteNaoExiste;
-import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExiste;
-import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExisteNestaResolucao;
-import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoExiste;
 import br.com.rca.apkRevista.scanner.Scanner;
 
 @Path("/")
 public class WebService {
-	private static int MAX_LOGS          = 100;
+	/*private static int MAX_LOGS          = 100;
 	private static ArrayList<String> log = new ArrayList<String>(); 
 	public static void addLog(String obj, String method, String msg){
 		String logMsg = LocalTime.now() + ": " + obj + " | " + method + " | "+ msg;
@@ -30,8 +16,7 @@ public class WebService {
 		if(log.size()==MAX_LOGS)
 			log.remove(0);
 		log.add(logMsg);
-	}
-	
+	}	
 	@GET
 	@Path("/log")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -42,7 +27,7 @@ public class WebService {
 		}
 		log.clear();
 		return retorno;
-	}
+	}*/
 
 	@GET
 	@Path("/iniciarScanner")
@@ -55,7 +40,7 @@ public class WebService {
 		}
 	}
 	
-	@GET
+/*	@GET
 	@Path("/obterImagem")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -77,5 +62,5 @@ public class WebService {
 			}
 		}
 		return null;
-	}
+	}*/
 }		
