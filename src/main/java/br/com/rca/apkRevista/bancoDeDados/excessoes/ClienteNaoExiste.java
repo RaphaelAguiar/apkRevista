@@ -1,6 +1,6 @@
 package br.com.rca.apkRevista.bancoDeDados.excessoes;
 
-public class ClienteNaoExiste extends Exception {
+public class ClienteNaoExiste extends ErroBase{
 
 	/**
 	 * 

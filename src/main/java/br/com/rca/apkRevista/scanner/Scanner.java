@@ -19,10 +19,9 @@ import br.com.rca.apkRevista.webService.WebService;
 
 
 public class Scanner extends Thread{
-	private static final String  PASTA_RAIZ         = "C:" + File.separator + "Temp" + File.separator;
-	private static final int     TEMPO_ENTRE_BUSCAS =  30;
-	private static final int     RESOLUCAO_PADRAO   = 300;
-	public  static final String  FORMATO_PADRAO     = "png";
+	public static final String  PASTA_RAIZ         = "C:" + File.separator + "Temp" + File.separator;
+	public static final int     RESOLUCAO_PADRAO   = 300;
+	public static final String  FORMATO_PADRAO     = "png";
 	
 	private static Scanner instance;
 	
@@ -55,9 +54,10 @@ public class Scanner extends Thread{
 	
 	@Override
 	public void run() {
-		//WebService.addLog("Scanner", "run()", "Scanner em execução!");
+		WebService.addLog("Scanner", "run()", "Scanner em execução!");
 		while(true){
 			boolean teveArquivoEncontrado = false; 
+			WebService.addLog("Scanner", "run()", "Procurando novos arquivos pdf's para converter em imagem...");
 			for (File pasta : pastasDeClientes) {
 				File[] arquivos = pasta.listFiles(new FilenameFilter() {
 				    public boolean accept(File dir, String name) {
@@ -71,9 +71,10 @@ public class Scanner extends Thread{
 						try{
 							DAORevista.getInstance().get(user,nomeDaRevista);
 						}catch(RevistaNaoExiste e){
+							WebService.addLog("Scanner", "run()", "Um novo arquivo foi encontrado, iniciando processo de converção!");
 							teveArquivoEncontrado = true;
 							Revista revista = new Revista(user,nomeDaRevista,arquivo);
-							List<Image> imagens = Converter.filePdfToImagens(arquivo,PASTA_RAIZ,user,RESOLUCAO_PADRAO, FORMATO_PADRAO);
+							List<Image> imagens = Converter.filePdfToImagens(arquivo,user,RESOLUCAO_PADRAO, FORMATO_PADRAO);
 							
 							Conexao.startTransaction();
 							for(int i = 0;i < imagens.size(); i++){
@@ -91,21 +92,11 @@ public class Scanner extends Thread{
 					}
 				}			
 			}
-			//WebService.addLog("Scanner", "run()", "Varredura Executada!");
-			if(!teveArquivoEncontrado)
-				pausar(TEMPO_ENTRE_BUSCAS * 1000);
-		}
-	}
-	
-	private void pausar(int tempoEntreBuscas) {
-			try {
-				//wait(tempoEntreBuscas);
-				sleep(tempoEntreBuscas);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch(Exception e){
-				e.printStackTrace();
+			if(!teveArquivoEncontrado){
+				WebService.addLog("Scanner", "run()", "Todos os arquivos encontrados foram enviados! Encerrando scanner...");
+				break;
 			}
+		}
 	}
 
 	public static Scanner getInstance() throws Exception {

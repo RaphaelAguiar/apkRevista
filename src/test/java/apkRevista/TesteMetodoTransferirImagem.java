@@ -1,15 +1,24 @@
 package apkRevista;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import br.com.rca.apkRevista.webService.WebService;
 
 public class TesteMetodoTransferirImagem {
 	public static void main(String[] args) {
-		/*new WebService().transferirImagem("kuatzak", 
-				                          "INCRICAOMEIJOYCE.pdf",
-				                          1, 
-				                          2481, 
-				                          3507,
-				                          300,
-				                          true);*/
+		JSONObject json = new JSONObject(); 
+		try {
+			json.put("clientUser",      "kuatzak");
+			json.put("nomeDaRevista",   "1.nomeDaRevista");
+			json.put("nPagina",         "1");
+			json.put("largura",         "0");
+			json.put("altura",          "0");
+			json.put("resolucao",       "300");
+			json.put("forcarResolucao", false);
+			new WebService().transferirImagem(json.toString());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 	}
 }

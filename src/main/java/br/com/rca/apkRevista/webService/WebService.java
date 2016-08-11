@@ -1,14 +1,32 @@
 package br.com.rca.apkRevista.webService;
 
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import java.awt.Image;
+import java.lang.Thread.State;
+import java.time.LocalTime;
+import java.util.ArrayList;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import br.com.rca.apkRevista.bancoDeDados.beans.Pagina;
+import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.ClienteNaoExiste;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExiste;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoExisteNestaResolucao;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoExiste;
 import br.com.rca.apkRevista.scanner.Scanner;
 
 @Path("/")
 public class WebService {
-	/*private static int MAX_LOGS          = 100;
+	private static int MAX_LOGS          = 100;
 	private static ArrayList<String> log = new ArrayList<String>(); 
 	public static void addLog(String obj, String method, String msg){
 		String logMsg = LocalTime.now() + ": " + obj + " | " + method + " | "+ msg;
@@ -27,40 +45,72 @@ public class WebService {
 		}
 		log.clear();
 		return retorno;
-	}*/
+	}
 
-	@GET
-	@Path("/iniciarScanner")
-	public void IniciarScanner(){
-		try {
-			Scanner scanner = Scanner.getInstance();
-			scanner.start();
-		} catch (Exception e) {
-			e.printStackTrace();
+/*	public WebService(){
+		iniciarScanner();
+	}*/
+	
+	private Scanner scanner;
+	public void iniciarScanner(){
+		if(scanner!=null){
+			if(scanner.getState()==State.TERMINATED){
+				scanner.start();
+			}
+		}else{
+			try {
+				scanner = Scanner.getInstance();
+				scanner.start();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
-/*	@GET
+	@POST
 	@Path("/obterImagem")
-	@Produces(MediaType.APPLICATION_JSON)
+	@Produces("image/png")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public JSONObject transferirImagem(String clientUser,String nomeDaRevista, int nPagina ,int largura, int altura, int resolucao, boolean forcarResolucao){
-		try{
-			Pagina  pagina = DAOPagina.getInstance().get(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao);
-			return new JSONObject(pagina.toJSON());
-		}catch(ClienteNaoExiste e){
-			log.add("Cliente " + clientUser + " não encontrado!");
-		}catch(RevistaNaoExiste e){
-			log.add("A Revista " + nomeDaRevista + " do cliente " + clientUser + " não existe!");
-		}catch(PaginaNaoExiste e){
-			log.add("A revista " + nomeDaRevista + " só tem " + e.getNUltimaPagina() + " página(s)!");
-		}catch(PaginaNaoExisteNestaResolucao e){
-			if(forcarResolucao){
-				Pagina pagina = new Pagina(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao);
-				DAOPagina.getInstance().persist(pagina);
-				return new JSONObject(pagina.toJSON());
+	public Image transferirImagem(String request){
+		try {
+			JSONObject obj          = new JSONObject(request); 
+			String  clientUser      = obj.getString("clientUser");
+			String  nomeDaRevista   = obj.getString("nomeDaRevista");
+			int     nPagina         = obj.getInt("nPagina");
+			int     largura         = obj.getInt("largura");
+			int     altura          = obj.getInt("altura");
+			int     resolucao       = obj.getInt("resolucao");
+			boolean forcarResolucao = obj.getBoolean("forcarResolucao");
+			try{
+				Pagina  pagina = DAOPagina.getInstance().get(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao);
+				return pagina.getImagem();
+			}catch(ClienteNaoExiste e){
+				log.add("Cliente " + clientUser + " não encontrado!");
+				return null;
+			}catch(RevistaNaoExiste e){
+				log.add("A Revista " + nomeDaRevista + " do cliente " + clientUser + " não existe!");
+				return null;
+			}catch(PaginaNaoExiste e){
+				log.add("A revista " + nomeDaRevista + " só tem " + e.getNUltimaPagina() + " página(s)!");
+				return null;
+			}catch(PaginaNaoExisteNestaResolucao e){
+				if(forcarResolucao){
+					Pagina pagina = new Pagina(clientUser,nomeDaRevista,nPagina,largura,altura,resolucao);
+					DAOPagina.getInstance().persist(pagina);
+					return null;
+				}
 			}
+			return null;
+		} catch (JSONException e) {
+			JSONObject retorno = new JSONObject();
+			try {
+				e.printStackTrace();
+				retorno.append("error", e.getClass().getName());
+			} catch (JSONException e1) {
+				e1.printStackTrace();
+				return null;
+			}
+			return null;
 		}
-		return null;
-	}*/
+	}
 }		

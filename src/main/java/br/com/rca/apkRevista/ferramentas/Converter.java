@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -47,7 +48,7 @@ public final class Converter {
 		return retorno;
 	}
 
-	public static List<Image> filePdfToImagens(File file,String pastaDeGravacao,String usuario, int resolution, String formato) {
+	public static List<Image> filePdfToImagens(File file,String usuario, int resolution, String formato) {
 		PDFDocument pdf           = new PDFDocument();
 		SimpleRenderer renderer   = new SimpleRenderer();
 		try {
@@ -55,10 +56,11 @@ public final class Converter {
 			renderer.setResolution(resolution);
 			List<Image> imagens = renderer.render(pdf);
 			for (int i = 0; i < imagens.size(); i++) {
-				String caminhoDaGravacao = pastaDeGravacao + new Pagina(usuario,file.getName(),i+1,0,0,resolution).getImagemPath();
-				File outputfile    = new File(caminhoDaGravacao);
+				Image imagem             = imagens.get(i);
+				String caminhoDaGravacao = new Pagina(usuario,file.getName(),i+1,imagem.getWidth(null),imagem.getHeight(null),resolution).getImagemPath();
+				File outputfile          = new File(caminhoDaGravacao);
 				outputfile.mkdirs();
-				ImageIO.write((RenderedImage) imagens.get(i), formato, outputfile);
+				ImageIO.write((RenderedImage) imagem, formato, outputfile);
 			}
 			return imagens;
 		} catch (FileNotFoundException e) {
@@ -117,5 +119,9 @@ public final class Converter {
 			System.out.println(ex.getMessage());
 		}
 		return bufferedImage;
+	}
+
+	public static String imagemToURL(Image imagem) {
+		return Base64.getUrlEncoder().encodeToString(imageToByte(imagem));
 	}
 }

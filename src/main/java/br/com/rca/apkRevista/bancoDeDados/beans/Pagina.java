@@ -48,19 +48,20 @@ public class Pagina implements Serializable, IJSON{
 				             
 	}
 	
-	public Image getImagem(){ 
+	public Image getImagem(){  
 		try {
 			return ImageIO.read(new File(getImagemPath()));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}
+		}	
 	}
 
 	
 	
 	public String getImagemPath() {
-		return	user	 	              + File.separator +
+		return	Scanner.PASTA_RAIZ        + /*File.separator*/
+				user	 	              + File.separator +
 				nomeDaRevista             + File.separator +
 				n0aEsquerda(resolucao,4)  + File.separator +
 				n0aEsquerda(nPagina  ,4)  + "-" + largura + "-" + altura +  "." + Scanner.FORMATO_PADRAO;
@@ -78,12 +79,12 @@ public class Pagina implements Serializable, IJSON{
 	public JSONObject toJSON() {
 		try {
 			JSONObject retorno = new JSONObject();
-			retorno.append("user",          user);
-			retorno.append("nomeDaRevista", nomeDaRevista);
-			retorno.append("nPagina",       nPagina);
-			retorno.append("largura",       largura);
-			retorno.append("altura",        altura);
-			retorno.append("resolucao",     resolucao);
+			retorno.put("user",          user);
+			retorno.put("nomeDaRevista", nomeDaRevista);
+			retorno.put("nPagina",       nPagina);
+			retorno.put("largura",       largura);
+			retorno.put("altura",        altura);
+			retorno.put("resolucao",     resolucao);
 			return retorno;
 		} catch (JSONException e) {
 			e.printStackTrace();

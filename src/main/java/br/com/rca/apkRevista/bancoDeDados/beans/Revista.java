@@ -57,10 +57,10 @@ public class Revista implements Serializable, IJSON{
 	public JSONObject toJSON() {
 		try {
 			JSONObject retorno = new JSONObject();
-			retorno.append("user",user);
-			retorno.append("nome",nome);
-			retorno.append("nPaginas",nPaginas);
-			retorno.append("arquivo",getArquivoURL());
+			retorno.put("user",user);
+			retorno.put("nome",nome);
+			retorno.put("nPaginas",nPaginas);
+			retorno.put("arquivo",getArquivoURL());
 		return retorno;
 		} catch (JSONException e) {
 			e.printStackTrace();
