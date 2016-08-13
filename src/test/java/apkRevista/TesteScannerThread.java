@@ -1,6 +1,9 @@
 package apkRevista;
 
+import java.lang.Thread.State;
 import java.util.List;
+
+import org.json.JSONObject;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.Cliente;
 import br.com.rca.apkRevista.bancoDeDados.beans.Revista;
@@ -8,9 +11,9 @@ import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAOCliente;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAORevista;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
-import br.com.rca.apkRevista.scanner.Scanner;
+import br.com.rca.apkRevista.webService.WebService;
 
-public class TesteScanner {
+public class TesteScannerThread {
 	public static void montarCenario(){
 		try {
 			String[] paramnsCliente     = {"clienteTeste"};
@@ -38,13 +41,19 @@ public class TesteScanner {
 	}
 	
 	public static void main(String[] args) {
-		try {
+		try{
+			//Teste em THREAD
+			JSONObject request    = new JSONObject();
+			request.put("cliente", "clienteTeste");
+			request.put("nomeDaRevista", "revistaTeste");
 			montarCenario();
-			Scanner scanner;
-				scanner = Scanner.getInstance();
-			scanner.run();
+			WebService webService = new WebService();
+			while(webService.getThreadScannerState()!=State.TERMINATED){
+				System.out.println(webService.obterStatus(request.toString()));
+				//Thread.sleep(1000);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}		
 	}
 }

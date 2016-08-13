@@ -25,7 +25,7 @@ import br.com.rca.apkRevista.bancoDeDados.excessoes.ClienteNaoEncontrado;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
 
 
-public class Scanner extends Thread{
+public class Scanner implements Runnable{
 	public static final String  PASTA_RAIZ         = "C:" + File.separator + "Temp";
 	public static final int     RESOLUCAO_PADRAO   = 300;
 	public static final String  FORMATO_PADRAO     = "png";
@@ -38,7 +38,6 @@ public class Scanner extends Thread{
 			throw new Exception("O endereço informado para pasta raiz não corresponde a uma pasta!");
 	}
 		
-	@Override
 	public void run() {
 		boolean parar = false;
 		while(parar==false){
@@ -59,7 +58,7 @@ public class Scanner extends Thread{
 								revista.setStatus(Status.EM_PROCESSAMENTO);
 								DAORevista.getInstance().persist(revista);
 
-								File arquivo              = new File(revista.getFolder());
+								File arquivo              = new File(revista.getFolder() + ".pdf");
 								PDFDocument pdf           = new PDFDocument();
 								SimpleRenderer renderer   = new SimpleRenderer();
 								pdf.load(arquivo);

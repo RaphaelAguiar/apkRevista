@@ -13,6 +13,7 @@ import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoDisponivel;
+import br.com.rca.apkRevista.scanner.Scanner;
 
 @Entity
 public class Pagina extends Bean implements Persistente{
@@ -41,20 +42,21 @@ public class Pagina extends Bean implements Persistente{
 	}
 
 	public String getFolder() {
-		return revista.getFolder() + getNPagina();
+		return revista.getFolder() + getNPagina() + "." + Scanner.FORMATO_PADRAO;
 	}
 	
 	public Image getImagem() throws RevistaNaoDisponivel{
 		if(imagem==null){
 			try {
-				imagem = ImageIO.read(new File(getFolder()));
+				if(revista.getStatus()!=Status.DISPONIVEL)
+					throw new RevistaNaoDisponivel(revista);
+				else{
+					String caminho = getFolder();
+					imagem         = ImageIO.read(new File(caminho));
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-		
-		if(revista.getStatus()!=Status.DISPONIVEL){
-			throw new RevistaNaoDisponivel(revista);
 		}
 		return imagem;
 	}

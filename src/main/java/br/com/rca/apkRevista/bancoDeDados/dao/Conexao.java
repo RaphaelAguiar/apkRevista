@@ -1,37 +1,51 @@
 package br.com.rca.apkRevista.bancoDeDados.dao;
 
+import java.util.ArrayList;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-public abstract class Conexao {
-	private static EntityManager     em;
-	private static EntityTransaction transaction;
+public class Conexao {
+	private static ArrayList<Conexao> conexoes = new ArrayList<Conexao>();
 	
 	static {
+		conexoes.add(new Conexao());
+		conexoes.add(new Conexao());
+	}
+	
+	public static Conexao getInstance(int num){
+		return conexoes.get(num);
+	}
+	
+	private EntityManager     em;
+	private EntityTransaction transaction;
+	
+	
+	public Conexao(){
 		em          = Persistence.createEntityManagerFactory("revistas").createEntityManager();
 		transaction = em.getTransaction();
 	}
 	
-	public static Query getQuery(String hql){
+	public Query getQuery(String hql){
 		return em.createQuery(hql);
 	}
 	
-	public static boolean inTransaction(){
+	public boolean inTransaction(){
 		return transaction.isActive();
 	}
 	
-	public static void startTransaction(){
+	public void startTransaction(){
 		transaction.begin();
 	}
-	public static void commit(){
+	public void commit(){
 		transaction.commit();
 	}
-	public static void roolback(){
+	public void roolback(){
 		transaction.rollback();
 	}
-	public static void persist(Object object){
+	public void persist(Object object){
 		boolean controlarTransacao = !transaction.isActive();
 		
 		if(controlarTransacao)
@@ -41,7 +55,7 @@ public abstract class Conexao {
 			transaction.commit();
 	}
 
-	public static void Close() {
+	public void Close() {
 		em.close();
 	}
 }

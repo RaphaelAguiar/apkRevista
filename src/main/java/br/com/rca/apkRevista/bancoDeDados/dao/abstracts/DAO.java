@@ -19,8 +19,18 @@ public abstract class DAO<T extends Bean> {
 		
 		Query qry = Conexao.getQuery("from Bean where DTYPE = ? and " + where);
 		qry.setParameter(1, getBeanClassName());
-		for (int i = 2; i <= paramns.length + 1; i++) {				
-			qry.setParameter(i, paramns[i-2]);
+		for (int i = 2; i <= paramns.length + 1; i++) {
+			String param = paramns[i-2];
+			try{
+				float asFloat = Float.parseFloat(param);
+				int   asInt   = Integer.parseInt(param);
+				if(asFloat!=asInt)
+					qry.setParameter(i, asFloat);
+				else
+					qry.setParameter(i, asInt);
+			}catch(NumberFormatException e){				
+				qry.setParameter(i, param);
+			}
 		}
 		return qry.getResultList();
 	}

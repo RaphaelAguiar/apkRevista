@@ -15,7 +15,7 @@ public class TesteMetodoTransferirImagem {
 			json.put("altura",          "0");
 			json.put("resolucao",       "300");
 			json.put("forcarResolucao", false);
-			new WebService().transferirImagem(json.toString());
+			new WebService().obterImagem(json.toString());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

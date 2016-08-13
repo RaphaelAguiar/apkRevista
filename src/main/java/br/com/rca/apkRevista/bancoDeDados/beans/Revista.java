@@ -18,7 +18,7 @@ import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoEncontrada;
 public class Revista extends Bean implements Persistente{
 	@ManyToOne
 	private Cliente    cliente;
-	private String     nome;
+	private String     nomeDaRevista;
 	private int        nPaginas;
 	private int        largura;
 	private int        altura;
@@ -33,14 +33,14 @@ public class Revista extends Bean implements Persistente{
 	public Revista(Cliente cliente, String nome){
 		super();
 		this.cliente = cliente;
-		this.nome    = nome;
+		this.nomeDaRevista    = nome;
 	}
 	
 	public Cliente getCliente() {
 		return cliente;
 	}
 	public String getNome() {
-		return nome;
+		return nomeDaRevista;
 	}
 	public int getNPaginas() {
 		return nPaginas;
@@ -96,7 +96,7 @@ public class Revista extends Bean implements Persistente{
 		return getCliente().getFolder() + File.separator + getNome() 
 		                                /*+ "-" + getResolucao()
 		                                + "-" + getAltura()
-		                                + "-" + getLargura()*/ + ".pdf";
+		                                + "-" + getLargura()*/;
 	}
 
 	public void setNPaginas(int nPaginas) {
