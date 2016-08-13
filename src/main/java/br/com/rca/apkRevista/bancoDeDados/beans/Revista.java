@@ -1,80 +1,134 @@
 package br.com.rca.apkRevista.bancoDeDados.beans;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Base64;
+import java.util.List;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.ManyToOne;
 
-import org.ghost4j.document.DocumentException;
-import org.ghost4j.document.PDFDocument;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.IJSON;
-import br.com.rca.apkRevista.ferramentas.Converter;
+import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
+import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
+import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
+import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoEncontrada;
 
 @Entity
-public class Revista implements Serializable, IJSON{
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 7202943200233575262L;
-	@Id
-	private String user;
-	@Id
-	private String nome;
-	private int nPaginas;
+public class Revista extends Bean implements Persistente{
+	@ManyToOne
+	private Cliente    cliente;
+	private String     nome;
+	private int        nPaginas;
+	private int        largura;
+	private int        altura;
+	private int        resolucao;
+	@Enumerated(EnumType.STRING)
+	private Status     status = Status.NAO_DEFINIDO;
 	
 	public Revista(){
-		
+		super();
 	}
 	
-	public Revista(String user,String name, File arquivo) {
-		try {
-			this.user = user;
-			this.nome = name.replace(".pdf", "");
-			
-			PDFDocument documento = new PDFDocument();
-			documento.load(arquivo);
-			nPaginas = documento.getPageCount();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (DocumentException e) {
-			e.printStackTrace();
-		}
+	public Revista(Cliente cliente, String nome){
+		super();
+		this.cliente = cliente;
+		this.nome    = nome;
 	}
-
+	
+	public Cliente getCliente() {
+		return cliente;
+	}
+	public String getNome() {
+		return nome;
+	}
 	public int getNPaginas() {
 		return nPaginas;
 	}
-
-	public JSONObject toJSON() {
+	
+	public List<Pagina> getPaginas(String where, String[] paramns) throws PaginaNaoEncontrada{
 		try {
-			JSONObject retorno = new JSONObject();
-			retorno.put("user",user);
-			retorno.put("nome",nome);
-			retorno.put("nPaginas",nPaginas);
-			retorno.put("arquivo",getArquivoURL());
-		return retorno;
-		} catch (JSONException e) {
-			e.printStackTrace();
-			return null;
+			int lengthParamns2 = paramns.length + (where == "" ? 0 : 1);
+			String[] paramns2  = new String[lengthParamns2];
+			paramns2[0]        = getId() + "";
+			for (int i = 1; i < paramns2.length ; i++) {
+				paramns2[i] = paramns[i-1];
+			}
+
+			if(where == "")
+				where = "1 = 1";
+			
+			List<Pagina> retorno = DAOPagina.getInstance().get("revista_id = ? and " + where, paramns2);
+			if(retorno.isEmpty()){
+				/*TODO Encontrar uma forma de extrair do where o nome da revista*/
+				throw new PaginaNaoEncontrada(0, this);
+			}else{
+				return retorno;
+			}
+		} catch (Exception e) {
+			if (e instanceof PaginaNaoEncontrada) {
+				throw (PaginaNaoEncontrada) e;
+			}else{
+				e.printStackTrace();
+				return null;
+			}
 		}
 	}
+	
+	public List<Pagina> getPaginas() throws PaginaNaoEncontrada{
+		String[] paramns = {""};
+		return  getPaginas("", paramns);		
+	}
 
-	public String getFilePath(){
-		return user + File.separator + nome + ".pdf";
+	public int getLargura() {
+		return largura;
+	}
+
+	public int getAltura() {
+		return altura;
+	}
+
+	public int getResolucao() {
+		return resolucao;
+	}
+
+	public String getFolder() {
+		return getCliente().getFolder() + File.separator + getNome() 
+		                                /*+ "-" + getResolucao()
+		                                + "-" + getAltura()
+		                                + "-" + getLargura()*/ + ".pdf";
+	}
+
+	public void setNPaginas(int nPaginas) {
+		this.nPaginas = nPaginas;
 	}
 	
-	public String getArquivoURL() {
-		File   arquivo    = new File(getFilePath());
-		byte[] arquivo01  =  Converter.fileToByte(arquivo);
-		return Base64.getUrlEncoder().encodeToString(arquivo01);
+	public void setStatus(Status status) {
+		/*TODO Log*/
+		if(status==Status.AGUARDANDO_SCANNER){
+			try {
+				List<Pagina> paginas = getPaginas();
+				for (Pagina pagina : paginas) {
+					DAOPagina.getInstance().delete(pagina);
+				}
+			} catch (PaginaNaoEncontrada e) {
+				//Sem problemas!
+			}
+		}
+		
+		System.out.println("Alteração do status da revista " + getCliente().getUser() + "/" + getNome() + " de " + this.status + " para " + status);
+		this.status = status;
+	}
+
+	public Status getStatus() {
+		return status;
+	}
+
+	public void setLargura(int largura) {
+		this.largura = largura;
+	}
+	
+	public void setAltura(int altura){
+		this.altura = altura;
 	}
 }

@@ -1,6 +1,5 @@
 package apkRevista;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.com.rca.apkRevista.webService.WebService;
@@ -17,7 +16,8 @@ public class TesteMetodoTransferirImagem {
 			json.put("resolucao",       "300");
 			json.put("forcarResolucao", false);
 			new WebService().transferirImagem(json.toString());
-		} catch (JSONException e) {
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

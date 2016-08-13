@@ -1,34 +1,69 @@
 package br.com.rca.apkRevista.bancoDeDados.beans;
 
+import java.io.File;
+import java.util.List;
+
 import javax.persistence.Entity;
-import javax.persistence.Id;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
+import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
+import br.com.rca.apkRevista.bancoDeDados.dao.DAORevista;
+import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
+import br.com.rca.apkRevista.scanner.Scanner;
 
-import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.IJSON;
-
-@Entity
-public class Cliente implements IJSON{
-	
-	@Id
+@Entity	
+public class Cliente extends Bean implements Persistente{
 	private String user;
-	@SuppressWarnings("unused")
 	private String password;
 	
+	public Cliente(){
+		super();
+	}
+	
+	public Cliente(String user, String password) {
+		this.user     = user;
+		this.password = password;
+	}
+
 	public String getUser() {
 		return user;
 	}
-
-	public JSONObject toJSON() {
+	
+	public boolean senhaCorreta(String senha){
+		return password == senha;
+	}
+	
+	public List<Revista> getRevistas(String where, String[] paramns) throws RevistaNaoEncontrada{
 		try {
-			JSONObject retorno = new JSONObject();
-			retorno.append("user", user);
-			//o password nao deve sair desta classe!
-			return retorno;
-		} catch (JSONException e) {
-			e.printStackTrace();
-			return null;
+			/*TODO extrair este trecho, pois é usado tambem em Revista.getPagina() getCliente()*/
+			int lengthParamns2 = paramns.length + (where == "" ? 0 : 1);
+			String[] paramns2  = new String[lengthParamns2];
+			paramns2[0]        = getId() + "";
+			for (int i = 1; i < paramns2.length ; i++) {
+				paramns2[i] = paramns[i-1];
+			}
+
+			if(where == "")
+				where = "1 = 1";	
+			
+			List<Revista> retorno = DAORevista.getInstance().get(" cliente_id = ? and " + where, paramns2);
+			if(retorno.isEmpty()){
+				/*TODO Encontrar uma forma de extrair do where o nome da revista*/
+				throw new RevistaNaoEncontrada("", this);
+			}else{
+				return retorno;
+			}
+		} catch (Exception e) {
+			if(e instanceof RevistaNaoEncontrada)
+				throw (RevistaNaoEncontrada) e;
+			else{
+				e.printStackTrace();
+				return null;
+			}
 		}
+	}
+
+	public String getFolder() {
+		return Scanner.PASTA_RAIZ + File.separator +  getUser();
 	}
 }
