@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.persistence.Entity;
 
+import br.com.rca.apkRevista.Parametros;
 import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAORevista;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
-import br.com.rca.apkRevista.scanner.Scanner;
 
 @Entity	
 public class Cliente extends Bean implements Persistente{
@@ -64,6 +64,6 @@ public class Cliente extends Bean implements Persistente{
 	}
 
 	public String getFolder() {
-		return Scanner.PASTA_RAIZ + File.separator +  getUser();
+		return Parametros.PASTA_RAIZ + File.separator +  getUser();
 	}
 }

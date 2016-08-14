@@ -8,13 +8,9 @@ public class TesteMetodoTransferirImagem {
 	public static void main(String[] args) {
 		JSONObject json = new JSONObject(); 
 		try {
-			json.put("clientUser",      "kuatzak");
-			json.put("nomeDaRevista",   "1.nomeDaRevista");
+			json.put("cliente",         "clienteTeste");
+			json.put("nomeDaRevista",   "revistaTeste");
 			json.put("nPagina",         "1");
-			json.put("largura",         "0");
-			json.put("altura",          "0");
-			json.put("resolucao",       "300");
-			json.put("forcarResolucao", false);
 			new WebService().obterImagem(json.toString());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

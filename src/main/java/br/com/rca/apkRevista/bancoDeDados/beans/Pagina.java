@@ -9,11 +9,11 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import br.com.rca.apkRevista.Parametros;
 import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoDisponivel;
-import br.com.rca.apkRevista.scanner.Scanner;
 
 @Entity
 public class Pagina extends Bean implements Persistente{
@@ -42,7 +42,7 @@ public class Pagina extends Bean implements Persistente{
 	}
 
 	public String getFolder() {
-		return revista.getFolder() + getNPagina() + "." + Scanner.FORMATO_PADRAO;
+		return revista.getFolder() + getNPagina() + "." + Parametros.FORMATO_PADRAO;
 	}
 	
 	public Image getImagem() throws RevistaNaoDisponivel{
