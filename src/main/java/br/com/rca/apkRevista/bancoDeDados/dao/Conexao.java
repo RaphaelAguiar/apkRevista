@@ -10,8 +10,12 @@ public abstract class Conexao {
 	private static EntityTransaction transaction;
 	
 	static{
-		em          = Persistence.createEntityManagerFactory("revistas").createEntityManager();
-		transaction = em.getTransaction();
+		try{
+			em          = Persistence.createEntityManagerFactory("revistas").createEntityManager();
+			transaction = em.getTransaction();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 	
 	public static Query getQuery(String hql){
