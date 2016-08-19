@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.Query;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
-import br.com.rca.apkRevista.bancoDeDados.dao.Conexao;
 
 public abstract class DAO<T extends Bean> {
 	public void persist(T object) {

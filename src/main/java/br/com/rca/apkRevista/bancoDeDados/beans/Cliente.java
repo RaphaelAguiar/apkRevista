@@ -30,7 +30,7 @@ public class Cliente extends Bean implements Persistente{
 	}
 	
 	public boolean senhaCorreta(String senha){
-		return password == senha;
+		return password.equals(senha);
 	}
 	
 	public List<Revista> getRevistas(String where, String[] paramns) throws RevistaNaoEncontrada{

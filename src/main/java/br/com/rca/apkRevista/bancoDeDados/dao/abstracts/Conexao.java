@@ -1,4 +1,4 @@
-package br.com.rca.apkRevista.bancoDeDados.dao;
+package br.com.rca.apkRevista.bancoDeDados.dao.abstracts;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
