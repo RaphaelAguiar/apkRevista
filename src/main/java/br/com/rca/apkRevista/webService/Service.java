@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import br.com.rca.apkRevista.Parametros;
-
 public class Service {
 	public void salvarImagem(InputStream inputStream, String caminho){
 	    try {
@@ -24,16 +22,17 @@ public class Service {
 	        ioe.printStackTrace();
 	    }
 	}
-	private Process scanner;
+	//private Process scanner;
 	public void iniciarScanner(){
-		if(scanner==null||!scanner.isAlive()){
+		/*TODO*/ 
+		/*if(scanner==null||!scanner.isAlive()){
 			try {
 				ProcessBuilder pb = new ProcessBuilder("java", "-jar", Parametros.PASTA_RAIZ + File.separator + "Scanner.jar");
 				scanner        =  pb.start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 	}
 	
 	public Service(){
