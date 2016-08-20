@@ -27,6 +27,7 @@ import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoEncontrada;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoDisponivel;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.SenhaIncorreta;
+import br.com.rca.apkRevista.webService.excessoes.ErroDeEnvio;
 
 @Path("/")
 public class WebService extends Service{	
@@ -98,13 +99,15 @@ public class WebService extends Service{
 			return null;
 		}
 	}
+	@SuppressWarnings("incomplete-switch")
 	@POST
 	@Path("/enviarRevista")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	public void enviarImagem(@FormDataParam("arquivo") InputStream inputStream,
 							 @FormDataParam("request") String request) throws JSONException, 
 																			  ClienteNaoEncontrado,  
-																			  SenhaIncorreta
+																			  SenhaIncorreta, 
+																			  ErroDeEnvio
 	{
 		try {
 			JSONObject obj        = new JSONObject(request);
@@ -121,18 +124,23 @@ public class WebService extends Service{
 					String[] paramNomeDaRevista = {nomeDaRevista};
 					try{
 						Revista revista      = cliente.getRevistas("nomeDaRevista = ?", paramNomeDaRevista).get(0);
+						switch(revista.getStatus()){
+							case AGUARDANDO_SCANNER:
+								iniciarScanner();
+								throw new ErroDeEnvio("A revista " + revista.getNome() + " está na fila do scanner, favor aguardar!");
+							case EM_PROCESSAMENTO:
+							case GERANDO_IMAGENS:
+								throw new ErroDeEnvio("A revista " + revista.getNome() + " está em processamento, favor aguardar!");
+						}
+						
 						List<Pagina> paginas = revista.getPaginas();
 						for (Pagina pagina : paginas) {
 							DAOPagina.getInstance().delete(pagina);
 						}
 						DAORevista.getInstance().delete(revista);
+						gerarRevista(inputStream, cliente, nomeDaRevista);
 					}catch(RevistaNaoEncontrada e){	
-					}finally{
-						Revista revista = new Revista(cliente, nomeDaRevista);
-						salvarImagem(inputStream, revista.getFolder() + ".pdf");
-						revista.setStatus(Status.AGUARDANDO_SCANNER);
-						DAORevista.getInstance().persist(revista);
-						iniciarScanner();
+						gerarRevista(inputStream, cliente, nomeDaRevista);
 					}
 				}else{
 					throw new SenhaIncorreta(cliente);
@@ -144,8 +152,18 @@ public class WebService extends Service{
 			throw e;
 		} catch (SenhaIncorreta e) {
 			throw e;
-		} catch (Exception e) {
+		} catch (ErroDeEnvio e){
+			throw e;
+		} catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+
+	private void gerarRevista(InputStream inputStream, Cliente cliente, String nomeDaRevista) {
+		Revista revista = new Revista(cliente, nomeDaRevista);
+		salvarImagem(inputStream, revista.getFolder() + ".pdf");
+		revista.setStatus(Status.AGUARDANDO_SCANNER);
+		DAORevista.getInstance().persist(revista);
+		iniciarScanner();
 	}
 }		

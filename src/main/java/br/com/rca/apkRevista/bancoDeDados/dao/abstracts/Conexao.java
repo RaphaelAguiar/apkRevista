@@ -3,7 +3,9 @@ package br.com.rca.apkRevista.bancoDeDados.dao.abstracts;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
+
+import br.com.rca.apkRevista.bancoDeDados.Query;
+
 
 public abstract class Conexao {	
 	private static EntityManager     em;
@@ -18,8 +20,12 @@ public abstract class Conexao {
 		}
 	}
 	
+	public static void refresh(Object entity){
+		em.refresh(entity);
+	}
+	
 	public static Query getQuery(String hql){
-		return em.createQuery(hql);
+		return new Query(em.createQuery(hql));
 	}
 	
 	public static boolean inTransaction(){
@@ -49,4 +55,3 @@ public abstract class Conexao {
 		em.close();
 	}
 }
-
