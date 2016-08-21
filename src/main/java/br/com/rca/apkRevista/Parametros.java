@@ -8,5 +8,5 @@ public final class Parametros {
 	public static final String PASTA_RAIZ        = "C:\\temp";
 	public static final String FORMATO_PADRAO    = "png";
 	public static final int     RESOLUCAO_PADRAO = 300;
-	public static final int INTERVALO_ENTRE_VARREDURAS_DO_SCANNER = 1;
+	public static final int INTERVALO_ENTRE_VARREDURAS_DO_SCANNER = 15;
 }
