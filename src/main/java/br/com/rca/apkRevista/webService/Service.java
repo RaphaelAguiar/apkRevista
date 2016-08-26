@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class Service {
-	public void salvarImagem(InputStream inputStream, String caminho){
+	public void salvarArquivo(InputStream inputStream, String caminho){
 	    try {
 	    	OutputStream outputStream = new FileOutputStream(new File(caminho));
 	        int read = 0;

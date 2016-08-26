@@ -42,7 +42,7 @@ public class Pagina extends Bean implements Persistente{
 	}
 
 	public String getFolder() {
-		return revista.getFolder() + getNPagina() + "." + Parametros.FORMATO_PADRAO;
+		return revista.getFolder() + '-' + getNPagina() + "." + Parametros.FORMATO_PADRAO;
 	}
 	
 	public Image getImagem() throws RevistaNaoDisponivel{

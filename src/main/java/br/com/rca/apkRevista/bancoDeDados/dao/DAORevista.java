@@ -21,7 +21,9 @@ public class DAORevista extends DAO<Revista>{
 	public void persist(Revista revista){
 		if(revista.getStatus()==Status.NAO_DEFINIDO)
 			throw new RevistaComStatusNaoDefinido(revista);
-		else
+		else{
+			super.persist(revista.getMiniatura());
 			super.persist(revista);
+		}
 	}
 }

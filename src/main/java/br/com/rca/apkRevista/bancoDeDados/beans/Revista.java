@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
@@ -25,6 +26,8 @@ public class Revista extends Bean implements Persistente{
 	private int        resolucao;
 	@Enumerated(EnumType.STRING)
 	private Status     status = Status.NAO_DEFINIDO;
+	@OneToOne
+	Miniatura miniatura;
 	
 	public Revista(){
 		super();
@@ -32,10 +35,13 @@ public class Revista extends Bean implements Persistente{
 	
 	public Revista(Cliente cliente, String nome){
 		super();
-		this.cliente = cliente;
-		this.nomeDaRevista    = nome;
+		this.cliente       = cliente;
+		this.nomeDaRevista = nome;
+		if (!(this instanceof Miniatura)) {			
+			this.miniatura     = new Miniatura(cliente,nome);
+		}
 	}
-	
+
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -93,10 +99,7 @@ public class Revista extends Bean implements Persistente{
 	}
 
 	public String getFolder() {
-		return getCliente().getFolder() + File.separator + getNome() 
-		                                /*+ "-" + getResolucao()
-		                                + "-" + getAltura()
-		                                + "-" + getLargura()*/;
+		return getCliente().getFolder() + File.separator + getNome();
 	}
 
 	public void setNPaginas(int nPaginas) {
@@ -115,8 +118,10 @@ public class Revista extends Bean implements Persistente{
 				//Sem problemas!
 			}
 		}
-		
-		System.out.println("Alteração do status da revista " + getCliente().getUser() + "/" + getNome() + " de " + this.status + " para " + status);
+		//System.out.println("Alteração do status da revista " + getCliente().getUser() + "/" + getNome() + " de " + this.status + " para " + status);
+		if (!(this instanceof Miniatura)) {			
+			this.getMiniatura().setStatus(status);
+		}
 		this.status = status;
 	}
 
@@ -130,5 +135,9 @@ public class Revista extends Bean implements Persistente{
 	
 	public void setAltura(int altura){
 		this.altura = altura;
+	}
+	
+	public Miniatura getMiniatura(){
+		return miniatura;
 	}
 }

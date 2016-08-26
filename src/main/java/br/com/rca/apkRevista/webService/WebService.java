@@ -1,14 +1,15 @@
 package br.com.rca.apkRevista.webService;
 
-
 import java.awt.Image;
 import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -16,11 +17,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import br.com.rca.apkRevista.bancoDeDados.beans.Cliente;
-import br.com.rca.apkRevista.bancoDeDados.beans.Pagina;
 import br.com.rca.apkRevista.bancoDeDados.beans.Revista;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAOCliente;
-import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAORevista;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.ClienteNaoEncontrado;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoEncontrada;
@@ -37,7 +36,7 @@ public class WebService extends Service{
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Image obterImagem(String request) throws JSONException, RevistaNaoEncontrada, RevistaNaoDisponivel, PaginaNaoEncontrada, ClienteNaoEncontrado {
 		try{	
-			JSONObject obj = new JSONObject(request);
+			JSONObject obj              = new JSONObject(request);
 			String  user                = obj.getString("cliente");
 			String  nomeDaRevista       = obj.getString("nomeDaRevista");
 			int     nPagina             = obj.getInt("nPagina");
@@ -71,11 +70,10 @@ public class WebService extends Service{
 		}
 	}
 	
-	@POST
+	@GET
 	@Path("obterStatus")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String obterStatus(String request) throws JSONException, RevistaNaoEncontrada{
+	public String obterStatus(@QueryParam("request") String request) throws JSONException, RevistaNaoEncontrada{
 		try {
 			JSONObject retorno      = new JSONObject();
 			JSONObject obj          = new JSONObject(request);
@@ -99,7 +97,6 @@ public class WebService extends Service{
 			return null;
 		}
 	}
-	@SuppressWarnings("incomplete-switch")
 	@POST
 	@Path("/enviarRevista")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -131,16 +128,15 @@ public class WebService extends Service{
 							case EM_PROCESSAMENTO:
 							case GERANDO_IMAGENS:
 								throw new ErroDeEnvio("A revista " + revista.getNome() + " está em processamento, favor aguardar!");
+							default:
+								revista.setStatus(Status.AGUARDANDO_SCANNER); //Deleta as paginas automaticamente
+								processar(inputStream, revista);				
 						}
-						
-						List<Pagina> paginas = revista.getPaginas();
-						for (Pagina pagina : paginas) {
-							DAOPagina.getInstance().delete(pagina);
-						}
-						DAORevista.getInstance().delete(revista);
-						gerarRevista(inputStream, cliente, nomeDaRevista);
+												
+
 					}catch(RevistaNaoEncontrada e){	
-						gerarRevista(inputStream, cliente, nomeDaRevista);
+						Revista revista     = new Revista(cliente, nomeDaRevista);
+						processar(inputStream, revista);
 					}
 				}else{
 					throw new SenhaIncorreta(cliente);
@@ -159,9 +155,8 @@ public class WebService extends Service{
 		}
 	}
 
-	private void gerarRevista(InputStream inputStream, Cliente cliente, String nomeDaRevista) {
-		Revista revista = new Revista(cliente, nomeDaRevista);
-		salvarImagem(inputStream, revista.getFolder() + ".pdf");
+	private void processar(InputStream inputStream, Revista revista) {
+		salvarArquivo(inputStream, revista.getFolder() + ".pdf");
 		revista.setStatus(Status.AGUARDANDO_SCANNER);
 		DAORevista.getInstance().persist(revista);
 		iniciarScanner();
