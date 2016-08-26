@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Envio de Revista</title>
+<script type="text/javascript">
+    function exibir (msg,alerta){
+		console.log(msg);
+		if(alerta)
+		  alert("Houve um erro ao tentar enviar a revista: " + msg);
+	}
+
+	var upload = function() {
+		try{
+			var cliente       = document.getElementById("cliente").value      ;
+			var senha         = document.getElementById("senha").value        ;
+			var nomeDaRevista = document.getElementById("nomeDaRevista").value;
+			var revista       = document.getElementById("arquivoDaRevista");
+			var file          = revista.files[0];
+			var reader        = new FileReader();
+			reader.onload     = function(){
+				try{
+					var parameters = '{"cliente":"'         +cliente      +'",'+
+									  '"senha":"'           +senha        +'",'+
+									  '"nomeDaRevista":"'   +nomeDaRevista+'"}';
+									
+					formData = new FormData();
+					formData.append("request",parameters);
+					formData.append("arquivo",reader.result);
+
+					xmlhttp = new XMLHttpRequest();
+					var url = "http://apkrevista.hopto.org:8080/apkRevista/enviarRevista";
+					xmlhttp.open("POST", url, false); /*TODO Alterar para assíncrono*/
+					xmlhttp.send(formData);		
+					if(xmlhttp.status!=204){
+						throw new error(xmlhttp.responseText);
+					}else{
+						alert("Arquivo enviado com sucesso!",true);
+					}
+				}catch(err){	
+					exibir(err,true);
+				}
+			}
+			reader.onloadend = function() {
+				exibir(reader.error.message,true);
+			};
+			reader.readAsBinaryString(file);
+		}catch(err){	
+			exibir(err.message,true);
+		}
+	};
+</script>
+</head>
+<body>	
+	<form method="post" onSubmit="JavaScript:upload()">
+		<p>Usuario: <input type="text" id="cliente" value="clienteTeste"></p>
+		<p>Senha: <input type="text" id="senha" value="123"></p>
+		<p>Nome da Revista: <input type="text" id="nomeDaRevista" value=""></p>
+		<p>Arquivo da Revista: <input type="file" id="arquivoDaRevista" accept="pdf"></p>
+		<p><input type="submit" value="Enviar"></p>
+	</form>
+</body>
+</html>
