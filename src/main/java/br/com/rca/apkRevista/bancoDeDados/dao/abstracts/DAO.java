@@ -29,6 +29,7 @@ public abstract class DAO<T extends Bean> {
 					qry.setParameter(i, asInt);
 			}catch(NumberFormatException e){				
 				qry.setParameter(i, param);
+				
 			}
 		}
 		return qry.getResultList();

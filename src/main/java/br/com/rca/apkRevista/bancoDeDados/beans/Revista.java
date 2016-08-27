@@ -55,6 +55,7 @@ public class Revista extends Bean implements Persistente{
 	public List<Pagina> getPaginas(String where, String[] paramns) throws PaginaNaoEncontrada{
 		try {
 			int lengthParamns2 = paramns.length + (where == "" ? 0 : 1);
+			lengthParamns2    += lengthParamns2 == 0 ? 1 : 0;
 			String[] paramns2  = new String[lengthParamns2];
 			paramns2[0]        = getId() + "";
 			for (int i = 1; i < paramns2.length ; i++) {

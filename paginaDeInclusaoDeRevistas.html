@@ -42,7 +42,7 @@
 				}
 			}
 			reader.onloadend = function() {
-				exibir(reader.error.message,true);
+				exibir(reader.error.name + ": " +reader.error.message,true);
 			};
 			reader.readAsBinaryString(file);
 		}catch(err){	
@@ -52,11 +52,14 @@
 </script>
 </head>
 <body>	
-	<form method="post" onSubmit="JavaScript:upload()">
-		<p>Usuario: <input type="text" id="cliente" value="clienteTeste"></p>
-		<p>Senha: <input type="text" id="senha" value="123"></p>
-		<p>Nome da Revista: <input type="text" id="nomeDaRevista" value=""></p>
-		<p>Arquivo da Revista: <input type="file" id="arquivoDaRevista" accept="pdf"></p>
+	<form method="POST"
+	      action="http://apkrevista.hopto.org:8080/apkRevista/enviarRevista" 
+		  enctype="multipart/form-data"
+	>
+		<p>Usuario:            <input type="text"     name="cliente"       value="clienteTeste"></p>
+		<p>Senha:              <input type="password" name="senha"         value="123"></p>
+		<p>Nome da Revista:    <input type="text"     name="nomeDaRevista" value=""></p>
+		<p>Arquivo da Revista: <input type="file"     name="arquivo"       accept="pdf"></p>
 		<p><input type="submit" value="Enviar"></p>
 	</form>
 </body>
