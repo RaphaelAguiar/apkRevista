@@ -127,11 +127,10 @@ public class WebService extends Service{
 
 	@POST
 	@Path("/enviarRevista")
-	//@Consumes("application/x-www-form-urlencoded")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public void enviarImagem(@FormDataParam("arquivo") InputStream inputStream,
-							 @FormDataParam("cliente") String user, 
-			                 @FormDataParam("senha") String senha,
+	public void enviarImagem(@FormDataParam("arquivo")       InputStream inputStream,
+							 @FormDataParam("cliente")       String user, 
+			                 @FormDataParam("senha")         String senha,
 			                 @FormDataParam("nomeDaRevista") String nomeDaRevista)
 		throws JSONException, 
    			   ClienteNaoEncontrado,  

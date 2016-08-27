@@ -26,4 +26,9 @@ public class DAORevista extends DAO<Revista>{
 			super.persist(revista);
 		}
 	}
+	@Override
+	public void delete(Revista revista){
+		super.delete(revista.getMiniatura());
+		super.delete(revista);
+	}
 }
