@@ -4,7 +4,8 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
+import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Bean;
+
 
 public abstract class DAO<T extends Bean> {
 	public void persist(T object) {
@@ -16,10 +17,9 @@ public abstract class DAO<T extends Bean> {
 		if(where == "")
 			where = "1 = 1";
 		
-		Query qry = Conexao.getQuery("from Bean where DTYPE = ? and " + where);
-		qry.setParameter(1, getBeanClassName());
-		for (int i = 2; i <= paramns.length + 1; i++) {
-			String param = paramns[i-2];
+		Query qry = Conexao.getQuery("from " + getBeanClassName() + " where " + where);
+		for (int i = 1; i <= paramns.length; i++) {
+			String param = paramns[i-1];
 			try{
 				float asFloat = Float.parseFloat(param);
 				int   asInt   = Integer.parseInt(param);
@@ -47,7 +47,7 @@ public abstract class DAO<T extends Bean> {
 		if(controlarTransacao)
 			Conexao.startTransaction();
 		
-		Query qry = Conexao.getQuery("delete Bean where id = ?");
+		Query qry = Conexao.getQuery("delete " + getBeanClassName() + " where id = ?");
 		qry.setParameter(1, bean.getId());
 		qry.executeUpdate();
 		

@@ -6,21 +6,37 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
-import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
+import org.hibernate.annotations.PolymorphismType;
+
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
+import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
 import br.com.rca.apkRevista.bancoDeDados.dao.DAOPagina;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.PaginaNaoEncontrada;
 
 @Entity
-public class Revista extends Bean implements Persistente{
+@org.hibernate.annotations.Entity(polymorphism = PolymorphismType.EXPLICIT)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+public class Revista implements Persistente,Bean{
+	@Id
+	@GeneratedValue(strategy=GenerationType.TABLE)
+	private int id;
+	
 	@ManyToOne
 	private Cliente    cliente;
 	private String     nomeDaRevista;
+	private int        edicao;
+	private String     subTitulo;
 	private int        nPaginas;
+	
 	private int        largura;
 	private int        altura;
 	private int        resolucao;
@@ -33,15 +49,22 @@ public class Revista extends Bean implements Persistente{
 		super();
 	}
 	
-	public Revista(Cliente cliente, String nome){
+	public Revista(Cliente cliente, String nome, int edicao, String subTitulo){
 		super();
 		this.cliente       = cliente;
 		this.nomeDaRevista = nome;
+		this.edicao        = edicao;
+		this.subTitulo     = subTitulo;
 		if (!(this instanceof Miniatura)) {			
-			this.miniatura     = new Miniatura(cliente,nome);
+			this.miniatura     = new Miniatura(cliente,nome,edicao,subTitulo);
 		}
 	}
 
+	
+	public int getId(){
+		return id;
+	}
+	
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -105,6 +128,8 @@ public class Revista extends Bean implements Persistente{
 
 	public void setNPaginas(int nPaginas) {
 		this.nPaginas = nPaginas;
+		if(!(this instanceof Miniatura))
+			this.getMiniatura().setNPaginas(nPaginas);
 	}
 	
 	public void setStatus(Status status) {
@@ -140,5 +165,13 @@ public class Revista extends Bean implements Persistente{
 	
 	public Miniatura getMiniatura(){
 		return miniatura;
+	}
+
+	public int getEdicao(){
+		return edicao;
+	}
+	
+	public String getSubTitulo(){
+		return subTitulo;
 	}
 }

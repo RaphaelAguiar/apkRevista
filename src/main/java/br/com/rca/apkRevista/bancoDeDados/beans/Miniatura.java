@@ -8,8 +8,8 @@ public class Miniatura extends Revista {
 		super();
 	}
 	
-	public Miniatura(Cliente cliente, String nomeDaRevista) {
-		super(cliente, nomeDaRevista);
+	public Miniatura(Cliente cliente, String nomeDaRevista, int edicao, String subTitulo) {
+		super(cliente, nomeDaRevista,edicao,subTitulo);
 	}
 	
 	@Override

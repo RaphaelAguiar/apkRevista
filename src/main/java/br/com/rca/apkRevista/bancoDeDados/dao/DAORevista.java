@@ -1,5 +1,7 @@
 package br.com.rca.apkRevista.bancoDeDados.dao;
 
+import java.util.List;
+
 import br.com.rca.apkRevista.bancoDeDados.beans.Revista;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
 import br.com.rca.apkRevista.bancoDeDados.dao.abstracts.DAO;
@@ -12,9 +14,16 @@ public class DAORevista extends DAO<Revista>{
 			instance = new DAORevista();
 		return instance;
 	}
+	
+	@Override
+	public List<Revista> get(String where, String[] paramns) throws Exception{
+		where += " and revista.class = 'Revista' ";
+		return super.get(where, paramns);
+	}
+	
 	@Override
 	public String getBeanClassName() {
-		return "Revista";
+		return "Revista revista";
 	}
 	
 	@Override
@@ -22,13 +31,13 @@ public class DAORevista extends DAO<Revista>{
 		if(revista.getStatus()==Status.NAO_DEFINIDO)
 			throw new RevistaComStatusNaoDefinido(revista);
 		else{
-			super.persist(revista.getMiniatura());
+			DAOMiniatura.getInstance().persist(revista.getMiniatura());
 			super.persist(revista);
 		}
 	}
 	@Override
 	public void delete(Revista revista){
-		super.delete(revista.getMiniatura());
+		DAOMiniatura.getInstance().delete(revista.getMiniatura());
 		super.delete(revista);
 	}
 }

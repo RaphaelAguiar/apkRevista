@@ -6,17 +6,23 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import br.com.rca.apkRevista.Parametros;
-import br.com.rca.apkRevista.bancoDeDados.beans.abstracts.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.enums.Status;
+import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Bean;
 import br.com.rca.apkRevista.bancoDeDados.beans.interfaces.Persistente;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoDisponivel;
 
 @Entity
-public class Pagina extends Bean implements Persistente{
+public class Pagina implements Persistente,Bean{
+	@Id
+	@GeneratedValue
+	private int id;
+	
 	@ManyToOne
 	private Revista revista;
 	private int     nPagina;
@@ -32,6 +38,10 @@ public class Pagina extends Bean implements Persistente{
 		super();
 		this.revista = revista;
 		this.nPagina = nPagina;
+	}
+	
+	public int getId(){
+		return id;
 	}
 	
 	public Revista getRevista() {

@@ -5,13 +5,13 @@ import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.json.JSONArray;
@@ -29,20 +29,18 @@ import br.com.rca.apkRevista.bancoDeDados.excessoes.RevistaNaoEncontrada;
 import br.com.rca.apkRevista.bancoDeDados.excessoes.SenhaIncorreta;
 import br.com.rca.apkRevista.webService.excessoes.ErroDeEnvio;
 
+
 @Path("/")
 public class WebService extends Service{	
 	@GET
 	@Path("/obterImagem")
 	@Produces("image/png")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Image obterImagem(@QueryParam("request") String request) throws JSONException, RevistaNaoEncontrada, RevistaNaoDisponivel, PaginaNaoEncontrada, ClienteNaoEncontrado {
-		try{	
-			JSONObject obj              = new JSONObject(request);
-			String  user                = obj.getString("cliente");
-			String  nomeDaRevista       = obj.getString("nomeDaRevista");
-			int     nPagina             = obj.getInt("nPagina");
-			boolean miniatura           = obj.getBoolean("miniatura");
-			
+	public Image obterImagem(@QueryParam("cliente")       String  user,
+			                 @QueryParam("nomeDaRevista") String  nomeDaRevista,
+			                 @QueryParam("nPagina")       int     nPagina,
+			                 @QueryParam("miniatura")     boolean miniatura) throws JSONException, RevistaNaoEncontrada, RevistaNaoDisponivel, PaginaNaoEncontrada, ClienteNaoEncontrado {
+		try{				
 			Cliente cliente             = obterCliente(user);
 			String[] paramNomeDaRevista = {nomeDaRevista};
 			String[] paramNPagina       = {nPagina + ""};				
@@ -69,12 +67,11 @@ public class WebService extends Service{
 	@GET
 	@Path("/obterStatus")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String obterStatus(@QueryParam("request") String request) throws JSONException, RevistaNaoEncontrada{
+	public String obterStatus(@QueryParam("cliente")       String cliente,
+			                  @QueryParam("nomeDaRevista") String nomeDaRevista
+			                  ) throws JSONException, RevistaNaoEncontrada{
 		try {
 			JSONObject retorno      = new JSONObject();
-			JSONObject obj          = new JSONObject(request);
-			String   cliente        = obj.getString("cliente");
-			String   nomeDaRevista  = obj.getString("nomeDaRevista");
 			String[] clienteParamns = {cliente};
 			String[] revistaParamns = {nomeDaRevista};
 			Revista revista         = DAOCliente.getInstance().
@@ -92,23 +89,23 @@ public class WebService extends Service{
 			e.printStackTrace();
 			return null;
 		}
-	}	
+	}
 
 	@GET
-	@Path("/obterMetaDados")
+	@Path("obterMetaDados")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String obterMetadados(@QueryParam("request") String request) throws JSONException, ClienteNaoEncontrado, RevistaNaoEncontrada{
+	public String obterMetadados(@QueryParam("cliente") String user) throws JSONException, ClienteNaoEncontrado, RevistaNaoEncontrada{
 		try {
-			JSONObject obj         = new JSONObject(request);
-			String user            = obj.getString("cliente");
 			Cliente cliente        = obterCliente(user);
-			String[] params        = {};
-			List<Revista> revistas = cliente.getRevistas("",params);
+			String[] params        = {Status.DISPONIVEL + ""};
+			List<Revista> revistas = cliente.getRevistas("Status = ?",params);
 			JSONArray retorno      = new JSONArray();
 			for (Revista revista : revistas) {
 				JSONObject result = new JSONObject();
 				result.put("nome", revista.getNome());
-				result.put("nPagina", revista.getNPaginas());
+				result.put("nPaginas", revista.getNPaginas());
+				result.put("edicao", revista.getEdicao());
+				result.put("subTitulo", revista.getSubTitulo());
 				retorno.put(result);
 			}
 			return retorno.toString();
@@ -128,10 +125,12 @@ public class WebService extends Service{
 	@POST
 	@Path("/enviarRevista")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	public void enviarImagem(@FormDataParam("arquivo")       InputStream inputStream,
-							 @FormDataParam("cliente")       String user, 
-			                 @FormDataParam("senha")         String senha,
-			                 @FormDataParam("nomeDaRevista") String nomeDaRevista)
+	public Response enviarImagem(@FormDataParam("arquivo")       InputStream inputStream,
+								 @FormDataParam("cliente")       String user, 
+				                 @FormDataParam("senha")         String senha,
+				                 @FormDataParam("nomeDaRevista") String nomeDaRevista,
+				                 @FormDataParam("edicao")        int    edicao,
+				                 @FormDataParam("subTitulo")     String subTitulo)
 		throws JSONException, 
    			   ClienteNaoEncontrado,  
 			   SenhaIncorreta, 
@@ -157,9 +156,10 @@ public class WebService extends Service{
 											
 
 				}catch(RevistaNaoEncontrada e){	
-					Revista revista     = new Revista(cliente, nomeDaRevista);
+					Revista revista     = new Revista(cliente, nomeDaRevista,edicao,subTitulo);
 					processar(inputStream, revista);
 				}
+				return Response.ok().build();
 			}else{
 				throw new SenhaIncorreta(cliente);
 			}
@@ -173,8 +173,10 @@ public class WebService extends Service{
 			throw e;
 		} catch (Exception e){
 			e.printStackTrace();
+			return null;
 		}
 	}
+	
 	
 	/*@GET
 	@Path("paginaDeInclusaoDeRevistas.html")
